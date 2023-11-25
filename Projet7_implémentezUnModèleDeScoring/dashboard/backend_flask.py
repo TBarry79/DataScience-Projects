@@ -46,6 +46,7 @@ def get_client_list():
 
 # Exposer l'endpoint pour obtenir les informations d'un client spécifique
 @app.route('/get_client_info', methods=['GET'])
+def get_client_info():
     # data = request.get_json(force=False)
     # print("Received data:", data)
     # client_id = data.get('client_id')
