@@ -1,0 +1,25 @@
+# Fichiers générés par Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Dossiers générés par pip
+/venv/
+/env/
+/.venv/
+/.env/
+
+# Dossiers spécifiques à certains IDE
+.vscode/
+.idea/
+
+# Fichiers de log
+*.log
+
+# Autres fichiers temporaires ou spécifiques à l'environnement
+.DS_Store
+.vscode/
+__pycache__/
+*.pyc
+
