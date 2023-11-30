@@ -1,7 +1,9 @@
+import json
 from flask import Flask, request, jsonify
 import pandas as pd
 import joblib
 import numpy as np
+import shap
 #from sklearn.inspection import plot_local_interpretation
 
 app = Flask(__name__)
@@ -10,16 +12,19 @@ app = Flask(__name__)
 model = joblib.load('best_logistic_regression_model.joblib')
 
 # Charger les données des clients 
-df = joblib.load('sample_data_10.joblib')
+df = joblib.load('test_set.joblib')
 # Exposer l'endpoint pour obtenir le DataFrame complet
 @app.route('/full_dataframe', methods=['GET'])
 def full_dataframe():
     try:
-        # Charger le DataFrame depuis le fichier joblib 
-        df = joblib.load('sample_data_10.joblib')
+        # Charger le DataFrame depuis le fichier Joblib
+        df = joblib.load('test_set.joblib')
 
-        # Retourner le DataFrame brut au format JSON
-        return jsonify(df.to_dict(orient='records'))
+        # Prendre un échantillon de 10 clients du DataFrame
+        sample_df = df.sample(n=10, random_state=42)
+
+        # Retourner l'échantillon au format JSON
+        return jsonify(sample_df.to_dict(orient='records'))
     except Exception as e:
         # Gérer les erreurs, par exemple, en renvoyant un message d'erreur
         return jsonify({"error": str(e)})
@@ -65,34 +70,55 @@ def get_client_info():
     return jsonify(client_info_dict)
 
 
-# Ajouter cette route à votre application Flask
+# Ajouter une nouvelle route pour la prédiction
 @app.route('/predict', methods=['POST'])
 def predict_credit_score():
-    data = request.get_json()
-    prediction = model.predict(data)
+    try:
+        # Récupérer les données JSON de la requête
+        data = request.get_json()
+
+        # Créer un DataFrame à partir des données JSON
+        data_df = pd.DataFrame([data])
+
+        # Effectuer la prédiction de probabilité
+        prediction = model.predict_proba(data_df)[:, 1]
+
+        # Retourner la prédiction au format JSON
+        return jsonify({"prediction": prediction.tolist()})
+
+    except Exception as e:
+        # En cas d'erreur, renvoyer un message d'erreur
+        return jsonify({"error": str(e)})
+
+
     
-    return jsonify({"prediction" : prediction.tolist()})
+
+#Exposer l'endpoint pour appliquer l'explainer local
+@app.route('/explain', methods=['POST'])
+def explain_prediction():
+    try:
+        # Récupérer les données JSON de la requête
+        data = request.get_json()
+
+        # Créer un DataFrame à partir des données JSON
+        data_df = pd.DataFrame([data])
+
+        # Utiliser shap pour expliquer la prédiction
+        explainer = shap.LinearExplainer(model, data_df)
+        shap_values = explainer.shap_values(data_df)
+
+        # Afficher les valeurs Shap pour chaque caractéristique dans les journaux
+        print("SHAP Values:", shap_values)
+
+        # Retourner les valeurs Shap pour chaque caractéristique
+        return jsonify({"shap_values": shap_values.tolist()})
+
+    except Exception as e:
+        # En cas d'erreur, renvoyer un message d'erreur avec les détails dans les journaux
+        print("Error:", str(e))
+        return jsonify({"error": str(e)})
 
 
-
-# Exposer l'endpoint pour appliquer l'explainer local
-# @app.route('/apply_explainer_local', methods=['POST'])
-# def apply_explainer_local():
-#     data = request.get_json(force=True)
-#     client_id = data.get('client_id')
-
-#     # Récupérer les informations du client à partir de l'ID
-#     client_info = df[df['SK_ID_CURR'] == client_id].to_dict(orient='records')[0]
-    
-#     # Ajouter la prédiction du modèle (remplacez cela par la logique réelle)
-#     features = client_info.get('features', [])
-#     prediction = model.predict_proba(np.array(features).reshape(1, -1))[0, 1]
-#     client_info['prediction'] = prediction
-
-#     # Appliquer l'explainer local (exemple fictif, remplacez-le par votre propre logique)
-#     explainer_result = plot_local_interpretation(model, np.array(features).reshape(1, -1), features_names=df.columns)
-
-#     return jsonify({'explainer_result': explainer_result})
 
 if __name__ == '__main__':
     app.run(port=5000)
