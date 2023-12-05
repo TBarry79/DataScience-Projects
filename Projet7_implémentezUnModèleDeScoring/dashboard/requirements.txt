@@ -2,6 +2,7 @@
 flask==3.0.0 
 numpy
 pandas
+shap
 Pillow
 pyarrow
 python-multipart
