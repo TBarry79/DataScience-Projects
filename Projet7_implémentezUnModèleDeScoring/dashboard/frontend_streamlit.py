@@ -6,6 +6,8 @@ import pandas as pd
 from io import StringIO
 import joblib
 import shap
+import numpy as np  
+import base64
 
 # Fonction pour obtenir la liste des clients
 def get_client_list():
@@ -44,7 +46,7 @@ def get_original_data(url):
         print(f"Erreur lors de la récupération du DataFrame : {str(e)}")
         return pd.DataFrame()
 
-# Utilisation de la fonction pour obtenir le DataFrame
+# Utilisation de la fonction pour obtenir le DataFrame d'origine
 url = 'http://localhost:5000/original_data'
 original_data= get_original_data(url)
 
@@ -62,18 +64,39 @@ def get_prediction(data):
 # Fonction pour obtenir les valeurs SHAP
 def get_shap_values(data):
     response = requests.post('http://localhost:5000/explain', json=data)
+    
     if response.status_code == 200:
         response_data = response.json()
-        shap_summary_plot_path = response_data.get("shap_summary_plot")
+        shap_values_list = response_data.get("shap_values")
+        shap_summary_plot_data = response_data.get("shap_summary_plot_data")
 
-        if shap_summary_plot_path:
-            st.image(shap_summary_plot_path, caption='SHAP Summary Plot', use_column_width=True)
+        if shap_summary_plot_data:
+            # Convertir la chaîne base64 en bytes
+            shap_summary_plot_data_bytes = base64.b64decode(shap_summary_plot_data)
+            
+            # Afficher l'image dans Streamlit
+            st.markdown(f'<img src="data:image/png;base64,{base64.b64encode(shap_summary_plot_data_bytes).decode()}" alt="SHAP Summary Plot">', unsafe_allow_html=True)
+            
+            # Retourner les valeurs SHAP pour une utilisation ultérieure si nécessaire
+            return shap_values_list
         else:
-            st.warning("Failed to generate SHAP Summary Plot.")
+            st.warning("Échec de la génération du tracé récapitulatif SHAP.")
+            return None
 
     else:
-        st.warning("Failed to get SHAP values.")
+        st.warning("Échec de l'obtention des valeurs SHAP.")
+        return None
+    
 
+# Fonction pour obtenir la contribution SHAP d'une seule fonctionnalité du backend
+def get_shap_contribution(data):
+    response = requests.post('http://localhost:5000/get_shap_contribution', json=data)
+    
+    if response.status_code == 200:
+        return True
+    else:
+        st.warning("Échec de l'obtention de la contribution SHAP.")
+        return False
 
 
 def columns_names():
@@ -87,7 +110,7 @@ def create_gauge(bid_price, ask_price, current_price, spread):
 
     fig.add_trace(go.Indicator(
         mode="gauge+number+delta",
-        title={'text': "Probabilité de faillite prédite"},
+        title={'text': "Probabilité de faillite prédite en pourcentage"},
         delta={'reference': ask_price, 'relative': False, 'increasing': {'color': "RebeccaPurple"}, 'decreasing': {'color': "RoyalBlue"}},
         value=current_price,
         domain={'x': [0, 1], 'y': [0, 1]},
@@ -113,6 +136,7 @@ def create_gauge(bid_price, ask_price, current_price, spread):
     return fig
 
 def main():
+
     st.title("Dashboard de Scoring de Crédit - Prêt à Dépenser")
     st.subheader("Auteur : TIDIANE Barry")
 
@@ -120,7 +144,6 @@ def main():
     selected_client = st.selectbox("Sélectionnez un client :", options=df['SK_ID_CURR'])
     st.write(selected_client)
     
-    # st.write(f"Probabilité de faillite prédite : {client_info.get('prediction', 'N/A')}")
 
     # Visualisation des informations descriptives relatives à un client
     if st.sidebar.checkbox("Afficher les données brutes", False):
@@ -138,8 +161,7 @@ def main():
         # st.write(f"Revenu provenant du travail: {df[df['SK_ID_CURR'] == selected_client]['NAME_INCOME_TYPE_Working'].iloc[0]}")
         #st.write(df)
 
-
-    # Ajouter la possibilité de saisir des features pour la prédiction
+    # Saisie des features pour la prédiction
     st.sidebar.subheader("Saisir des features pour la prédiction :")
     feature1 = st.sidebar.number_input("CODE_GENDER", value=df[df['SK_ID_CURR'] == selected_client]['CODE_GENDER'].iloc[0])
     feature2 = st.sidebar.number_input("DAYS_BIRTH", value=int(df[df['SK_ID_CURR'] == selected_client]['DAYS_BIRTH'].iloc[0] / -365))
@@ -148,16 +170,24 @@ def main():
 
     user_features = [feature1, feature2, feature3, feature4]
 
+    # Prédiction du score de crédit
     if st.sidebar.button("Prédire le score de crédit", key="predict_button"):
+        #features = df.columns[3:588].values
+        # Remplacer par les valeurs d'origines des features
         features = columns_names()
         selected_client_data = df[df['SK_ID_CURR'] == selected_client][features]
         prediction = get_prediction(selected_client_data.to_dict(orient='records')[0])
+        # Arrondir la prédiction à deux chiffres après la virgule et convertir en pourcentage
+        prediction = round(prediction, 2) * 100
+        prediction_with_percent = f"{prediction}%"
         st.session_state.selected_client_data = selected_client_data  # Stocker les données dans la variable de session
-        st.write(prediction)
+        st.write(prediction_with_percent)
 
-        fig = create_gauge(0, 1, prediction, 0.1)
+        fig = create_gauge(0, 100, prediction, 0.1)
         st.plotly_chart(fig, use_container_width=True)
 
+
+    # Calcul de la contribution SHAP pour une seule feature
     if st.sidebar.button("Expliquer la prédiction", key="explain_button"):
         if st.session_state.selected_client_data is not None:
             shap_values = get_shap_values(st.session_state.selected_client_data.to_dict(orient='records')[0])
@@ -165,15 +195,45 @@ def main():
             # Affichez les valeurs SHAP pour le débogage
             st.write("SHAP Values:", shap_values)
 
-            # Assurez-vous que les valeurs SHAP sont de la bonne forme
-            if shap_values is not None and len(shap_values.shape) == 2:
-                # Visualiser les valeurs SHAP sous forme de résumé
-                shap.summary_plot(shap_values, st.session_state.selected_client_data)
-            else:
-                st.warning("Les valeurs SHAP ne sont pas dans le format attendu.")
-        else:
-            st.warning("Veuillez d'abord effectuer une prédiction.")
+            if shap_values is not None and len(shap_values) == 1:
+                # Accéder à la première sous-liste des valeurs SHAP
+                shap_values_list = shap_values[0]
 
+                # Assurez-vous que la sous-liste a la longueur attendue
+                if len(shap_values_list) == 2:
+                    # Visualiser les valeurs SHAP sous forme de résumé
+                    shap.summary_plot(shap_values_list, st.session_state.selected_client_data)
+                else:
+                    st.warning("Les valeurs SHAP ne sont pas dans le format attendu.")
+            else:
+                st.warning("Échec de l'obtention des valeurs SHAP..")
+
+    
+    # Sélectionner une observation spécifique à interpréter (par exemple, la première observation)
+    selected_observation  = {
+        "CODE_GENDER": "CODE_GENDER",
+        "DAYS_BIRTH": "DAYS_BIRTH",  
+        "AMT_ANNUITY": "AMT_ANNUITY",  
+        "AMT_CREDIT": "AMT_CREDIT",  
+        "EXT_SOURCE_2": "EXT_SOURCE_2"  
+    }
+
+    # Sélectionner une observation spécifique à interpréter
+    selected_observation = st.sidebar.selectbox("Sélectionnez une feature pour la contribution SHAP", options=list(selected_observation.keys()))
+
+    # Calcul de la contribution SHAP pour la feature sélectionnée
+    if st.sidebar.button("Afficher la contribution SHAP", key="shap_button"):
+        # Envoyer la feature sélectionnée au backend
+        feature_name = selected_observation
+        data = {"feature_name": feature_name}
+        success = get_shap_contribution(data)
+        
+        if success:
+            st.success(f"La contribution SHAP pour {feature_name} a été calculée avec succès et sauvegardée.")
+           
+            shap.dependence_plot(feature_name, shap_values, pd.DataFrame([selected_observation]), show=True)
+        else:
+            st.error("Erreur lors du calcul de la contribution SHAP.")
 
 
 if __name__ == "__main__":
