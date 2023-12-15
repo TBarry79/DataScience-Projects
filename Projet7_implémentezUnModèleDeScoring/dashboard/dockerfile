@@ -14,10 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Exposez le port que votre application utilise
-EXPOSE 5000
+EXPOSE 5000 8501
 
 # Commande à exécuter lorsque le conteneur démarre
-#CMD ["python", "backend_flask.py"]
-
 CMD ["./start.sh"]
-
