@@ -11,3 +11,5 @@ streamlit
 joblib
 scikit-learn
 matplotlib
+gunicorn
+plotly
