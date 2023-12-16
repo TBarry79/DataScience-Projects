@@ -10,7 +10,6 @@ import numpy as np
 import shap
 import base64
 
-#from sklearn.inspection import plot_local_interpretation
 
 app = Flask(__name__)
 
@@ -30,13 +29,11 @@ def load_model():
         return jsonify({"error": str(e)})
 
 
-# Charger les données des clients 
-df = joblib.load('X_test_scaled.joblib')
 # Exposer l'endpoint pour obtenir le DataFrame complet
 @app.route('/full_dataframe', methods=['GET'])
 def full_dataframe():
     try:
-        # Charger le DataFrame depuis le fichier Joblib
+        # Charger les données des clients 
         df = joblib.load('X_test_scaled.joblib')
         
 
@@ -45,15 +42,13 @@ def full_dataframe():
     except Exception as e:
         # Gérer les erreurs, par exemple, en renvoyant un message d'erreur
         return jsonify({"error": str(e)})
+  
 
-    
-
-# Charger les données des clients avant le prétraitement  
-original_data = joblib.load('original_data.joblib')
-# Ajouter cette route à votre application Flask
+ # Ajouter cette route à votre application Flask
 @app.route('/original_data', methods=['GET'])
 def original_data():
     try:
+        # Charger les données des clients avant le prétraitement 
         original_data = joblib.load('original_data.joblib')
 
         return jsonify(original_data.to_dict(orient='records'))
@@ -66,6 +61,8 @@ def original_data():
 @app.route('/get_client_list', methods=['GET'])
 def get_client_list():
 
+    # Charger les données des clients 
+    df = joblib.load('X_test_scaled.joblib')
     # Récupérer la liste des 10 clients à partir de la colonne 'SK_ID_CURR'
     client_list = df['ID'].tolist()
     return jsonify(client_list)
@@ -81,7 +78,7 @@ def predict_credit_score():
         # Créer un DataFrame à partir des données JSON
         data_df = pd.DataFrame([data])
 
-        # Effectuer la prédiction de probabilité
+        # Effectuer la prédiction de probabilités associées à la classe positive (défaut de paiement)
         prediction = model.predict_proba(data_df)[:, 1]
 
         # Retourner la prédiction au format JSON

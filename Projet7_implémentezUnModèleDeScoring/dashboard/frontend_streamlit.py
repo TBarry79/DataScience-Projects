@@ -130,17 +130,13 @@ def main():
     st.title("Dashboard de Scoring de Crédit - Prêt à Dépenser")
     st.subheader("Auteur : TIDIANE Barry")
 
-    
-    selected_client = st.selectbox("Sélectionnez un client :", options=df['ID'])
-    st.write(selected_client)
-    
+    selected_client = st.selectbox("Sélectionnez un client :", options=df['ID'])    
 
     # Visualisation des informations descriptives relatives à un client
     if st.sidebar.checkbox("Afficher les données brutes", False):
         st.subheader("Données de 10 échantillons")
         st.subheader(f"Informations descriptives du client identifié par {selected_client} :")
         # Afficher les informations spécifiques du client
-        st.write(f"Indicateur de défaut de paiement: {original_data[original_data['SK_ID_CURR'] == selected_client]['TARGET'].iloc[0]}")
         st.write(f"Genre du client: {original_data[original_data['SK_ID_CURR'] == selected_client]['CODE_GENDER'].iloc[0]}")
         st.write(f"Âge : {int(original_data[original_data['SK_ID_CURR'] == selected_client]['DAYS_BIRTH'].iloc[0]/-365)}")
         st.write(f" Indicateur de possession d'une voiture: {original_data[original_data['SK_ID_CURR'] == selected_client]['FLAG_OWN_CAR'].iloc[0]}")
@@ -148,7 +144,7 @@ def main():
         st.write(f"Montant mensuel à rembourer: {original_data[original_data['SK_ID_CURR'] == selected_client]['AMT_ANNUITY'].iloc[0]}")
         st.write(f"Montant total du crédit demandé: {original_data[original_data['SK_ID_CURR'] == selected_client]['AMT_CREDIT'].iloc[0]}")
         st.write(f"Montant total du revenu du client: {original_data[original_data['SK_ID_CURR'] == selected_client]['AMT_INCOME_TOTAL'].iloc[0]}")
-        #st.write(df)
+        #st.write(original_data)
 
      # Saisie des features pour la prédiction
     st.sidebar.subheader("Saisir des features pour la prédiction :")
@@ -161,25 +157,87 @@ def main():
 
     # Prédiction du score de crédit
     if st.sidebar.button("Prédire le score de crédit", key="predict_button"):
-        #features = df.columns[3:574].values
-        # Remplacer par les valeurs d'origines des features
         features = columns_names()
         selected_client_data = df[df['ID'] == selected_client][features]
         prediction = get_prediction(selected_client_data.to_dict(orient='records')[0])
         # Arrondir la prédiction à deux chiffres après la virgule et convertir en pourcentage
         if prediction is not None:
             prediction = round(prediction, 2) * 100
-            st.write("Prediction de probabilité de défaut de crédit :", prediction, "%")
+            st.write("Probabilité de défaut de crédit :", prediction, "%")
         else:
             st.warning("Aucune prédiction disponible.")
-        prediction_with_percent = f"{prediction}%"
         st.session_state.selected_client_data = selected_client_data  # Stocker les données dans la variable de session
-        st.write(prediction_with_percent)
 
         fig = create_gauge(0, 100, prediction, 0.1)
         st.plotly_chart(fig, use_container_width=True)
 
+    
+    # # Bouton pour afficher le graphique pour le client selectionner avec un score prédit > 0,5
+    # if st.sidebar.button("Afficher le du client à risque"):
+    #     features = columns_names()
+    #     selected_client_data = df[df['ID'] == selected_client][features]
+    #     prediction = get_prediction(selected_client_data.to_dict(orient='records')[0])
 
+    #      # S'assurer que la prédictions n'est pas nulle
+    #     if prediction is not None:
+    #         # Compter les occurrences de prédictions > 0,5 pour tous les clients
+    #         count_high_risk_clients = np.sum(prediction > 0.5)
+
+    #         # Afficher le nombre de clients à haut risque
+    #         st.write("Nombre de clients avec un score > 0.5 :", count_high_risk_clients)
+
+    #         # Créer un graphique à barres pour visualiser la distribution des scores prédits
+    #         fig, ax = plt.subplots()
+    #         ax.hist(prediction, bins=20, color='blue', alpha=0.7, label='Bon clients')
+
+    #         # Vérifier s'il y a des clients à risque avant la représentation
+    #         if count_high_risk_clients > 0:
+    #             ax.hist([prediction] * count_high_risk_clients, bins=20, color='red', alpha=0.7, label='Client à risque')
+    #         ax.set_xlabel('Score de crédit')
+    #         ax.set_ylabel('Nombre de clients')
+    #         ax.legend()
+
+    #     else:
+    #         st.warning("Aucune prédiction disponible.")
+
+    #     # Afficher le graphique
+    #     st.pyplot(fig)
+
+
+    # Bouton pour afficher le graphique pour les clients avec un score prédit > 0,5
+    if st.sidebar.button("Afficher le nombre de clients à risque"):
+        features = columns_names()
+
+        # Obtenir les prédictions pour tous les clients
+        predictions = df.apply(lambda row: get_prediction(row[features].to_dict()), axis=1)
+
+        # S'assurer que les prédictions ne sont pas nulles
+        if not predictions.isnull().all():
+            # Compter les occurrences de prédictions > 0,5 pour tous les clients
+            count_high_risk_clients = np.sum(predictions > 0.5)
+
+            # Afficher le nombre de clients à haut risque
+            st.write("Nombre de clients avec un score > 0.5 :", count_high_risk_clients)
+
+            # Créer un graphique à barres pour visualiser la distribution des scores prédits
+            fig, ax = plt.subplots()
+            ax.hist(predictions, bins=20, color='blue', alpha=0.7, label='Bons clients')
+
+            # Vérifier s'il y a des clients à risque avant la représentation
+            if count_high_risk_clients > 0:
+                ax.hist(predictions[predictions > 0.5], bins=20, color='red', alpha=0.7, label='Clients à risque')
+            ax.set_xlabel('Score de crédit')
+            ax.set_ylabel('Nombre de clients')
+            ax.legend()
+
+        else:
+            st.warning("Aucune prédiction disponible.")
+
+        # Afficher le graphique
+        st.pyplot(fig)
+
+
+    # Bouton pour expliquer la prédiction
     if st.sidebar.button("Expliquer la prédiction", key="explain_button"):
         # Charger le modèle depuis le backend
         model = load_model_from_backend()
@@ -196,6 +254,7 @@ def main():
         # Créer un objet Explanation
         explanation = shap.Explanation(values=shap_values, base_values=explainer.expected_value, data=df_without_id)
         
+        # Affichage graphiques des valeurs shap
         st_shap(shap.plots.waterfall(explanation[0]), height=300)
         st_shap(shap.plots.beeswarm(explanation), height=300)
 
@@ -218,7 +277,7 @@ def main():
     }
 
     
-    # Assuming 'selected_feature' is the selected feature
+    # Selectionner une fonctionnalité
     selected_feature = st.sidebar.selectbox("Sélectionnez une feature pour la contribution SHAP", options=list(selected_observation.keys()))
 
     # Define default values based on descriptive statistics (replace with actual values)
@@ -230,28 +289,28 @@ def main():
         "EXT_SOURCE_3": df[selected_feature].median()
     }
 
-    # Get the actual feature value from the user
+    # Obtenir la valeur réelle de la fonctionnalité auprès de l'utilisateur
     actual_feature_value = st.sidebar.number_input(f"Valeur pour {selected_feature}", value=default_feature_values.get(selected_feature, 0.0))
 
-    # Button to trigger SHAP plot
+    # Bouton pour déclencher le tracé SHAP
     if st.sidebar.button("Afficher la contribution SHAP", key="shap_button"):
-        # Update user_features with the actual feature value
+        # Mettre à jour user_features avec la valeur réelle de la fonctionnalité
         user_features[selected_feature] = actual_feature_value
 
         # Supprimer la colonne 'ID' de df
         df_without_id = df.drop('ID', axis=1)
     
-        # Create a DataFrame with the selected features and the updated user value
+        # Créer un DataFrame avec les fonctionnalités sélectionnées et la valeur utilisateur mise à jour
         user_df = pd.DataFrame([user_features], columns=df_without_id.columns)
 
         # Charger le modèle depuis le backend
         model = load_model_from_backend()
 
-        # Calculate SHAP values for the updated observation
+        # Calculer les valeurs SHAP pour l'observation mise à jour
         explainer = shap.Explainer(model, df_without_id)
         shap_values = explainer.shap_values(user_df)
 
-        # Display the SHAP dependence plot
+        # Afficher le tracé de dépendance SHAP
         st_shap(shap.dependence_plot(str(selected_feature), shap_values, user_df, show=True))
 
 if __name__ == "__main__":

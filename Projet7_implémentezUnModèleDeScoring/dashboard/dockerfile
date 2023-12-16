@@ -1,20 +1,24 @@
 # Utilisez une image de base avec Python préinstallé
 FROM python:3.11-slim
 
-# Définissez le répertoire de travail dans le conteneur
+# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copiez le fichier des dépendances (requirements.txt) dans le conteneur
+# Installer les dépendances de compilation nécessaires
+RUN apt-get update && apt-get install -y build-essential python3-dev
+
+# Copier le fichier des dépendances (requirements.txt) dans le conteneur
 COPY requirements.txt .
 
-# Installez les dépendances
+# Installer les dépendances
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiez le reste du code dans le conteneur
+# Copier le reste du code dans le conteneur
 COPY . .
 
-# Exposez le port que votre application utilise
+# Exposer le port que votre application utilise
 EXPOSE 5000 8501
 
 # Commande à exécuter lorsque le conteneur démarre
 CMD ["./start.sh"]
+
