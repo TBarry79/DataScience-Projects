@@ -68,7 +68,10 @@ def get_prediction(data):
 
 # Fonction pour récupérer les noms des features
 def columns_names():
-        cols_names = joblib.load('cols_names.joblib')
+        url = "https://storage.googleapis.com/model_credit_score/cols_names.joblib"
+        response = requests.get(url)
+        cols_file = BytesIO(response.content)
+        cols_names= joblib.load(cols_file)
         return cols_names
 
 
