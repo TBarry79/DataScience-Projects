@@ -72,26 +72,26 @@ def columns_names():
 
 
 # Fonction pour récupérer le modele du backend
-def load_model_from_backend():
-    url = "https://credit-score-atnhl6v7pq-od.a.run.app/load_model"  # Remplacez par l'URL de votre serveur Flask
-    try:
-        response = requests.get(url)
-        response_data = response.json()
+# def load_model_from_backend():
+#     url = "https://credit-score-atnhl6v7pq-od.a.run.app/load_model"  # Remplacez par l'URL de votre serveur Flask
+#     try:
+#         response = requests.get(url)
+#         response_data = response.json()
         
-        if "model_path" in response_data:
-            # Charger le modèle depuis le fichier temporaire
-            return joblib.load(response_data["model_path"])
-        elif "error" in response_data:
-            st.error(f"Erreur lors du chargement du modèle: {response_data['error']}")
-        else:
-            st.error("Réponse inattendue du serveur.")
-    except Exception as e:
-        st.error(f"Erreur de récupération du modèle: {str(e)}")
-    return None
+#         if "model_path" in response_data:
+#             # Charger le modèle depuis le fichier temporaire
+#             return joblib.load(response_data["model_path"])
+#         elif "error" in response_data:
+#             st.error(f"Erreur lors du chargement du modèle: {response_data['error']}")
+#         else:
+#             st.error("Réponse inattendue du serveur.")
+#     except Exception as e:
+#         st.error(f"Erreur de récupération du modèle: {str(e)}")
+#     return None
 
-# Charger le modèle depuis le backend
-model = load_model_from_backend()
-
+# # Charger le modèle depuis le backend
+# model = load_model_from_backend()
+model = joblib.load("temp_model.joblib")
 
 # Fonction pour la construction du jauge de score
 def create_gauge(bid_price, ask_price, current_price, spread):
