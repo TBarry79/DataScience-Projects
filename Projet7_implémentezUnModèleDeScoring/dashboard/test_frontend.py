@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 import pandas as pd
 from io import StringIO
 
-# Import the functions you want to test
+# Import the functions we want to test
 from frontend_streamlit import (
     get_client_list,
     get_dataframe_from_api,
