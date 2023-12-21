@@ -91,7 +91,7 @@ def columns_names():
 
 # # Charger le modèle depuis le backend
 # model = load_model_from_backend()
-model = joblib.load("temp_model.joblib")
+model = joblib.load("./temp_model.joblib")
 
 # Fonction pour la construction du jauge de score
 def create_gauge(bid_price, ask_price, current_price, spread):
