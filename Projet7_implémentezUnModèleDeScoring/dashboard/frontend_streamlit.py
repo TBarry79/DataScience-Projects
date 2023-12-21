@@ -12,7 +12,7 @@ import base64
 
 # Fonction pour obtenir la liste des clients
 def get_client_list():
-    response = requests.get('http://localhost:5000/get_client_list')
+    response = requests.get('https://credit-score-atnhl6v7pq-od.a.run.app/get_client_list')
     
     if response.status_code == 200:
         return response.json()
@@ -32,7 +32,7 @@ def get_dataframe_from_api(url):
         return pd.DataFrame()
 
 # Utilisation de la fonction pour obtenir le DataFrame 
-url = 'http://localhost:5000/full_dataframe'
+url = 'https://credit-score-atnhl6v7pq-od.a.run.app/full_dataframe'
 df = get_dataframe_from_api(url)
 
 
@@ -49,14 +49,14 @@ def get_original_data(url):
         return pd.DataFrame()
 
 # Utilisation de la fonction pour obtenir le DataFrame d'origine
-url = 'http://localhost:5000/original_data'
+url = 'https://credit-score-atnhl6v7pq-od.a.run.app/original_data'
 original_data= get_original_data(url)
 
 
  # Fonction pour effectuer la prédiction
 def get_prediction(data):
     try:
-        response = requests.post('http://localhost:5000/predict', json=data)
+        response = requests.post('https://credit-score-atnhl6v7pq-od.a.run.app/predict', json=data)
         response.raise_for_status()  # Lève une exception pour les codes d'erreur HTTP
         response_data = response.json()
         return response_data["prediction"][0]
@@ -73,7 +73,7 @@ def columns_names():
 
 # Fonction pour récupérer le modele du backend
 def load_model_from_backend():
-    url = "http://localhost:5000/load_model"  # Remplacez par l'URL de votre serveur Flask
+    url = "https://credit-score-atnhl6v7pq-od.a.run.app/load_model"  # Remplacez par l'URL de votre serveur Flask
     try:
         response = requests.get(url)
         response_data = response.json()
