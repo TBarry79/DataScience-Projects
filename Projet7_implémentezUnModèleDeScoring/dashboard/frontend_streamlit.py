@@ -9,6 +9,7 @@ import shap
 import numpy as np  
 from streamlit_shap import st_shap
 import base64
+from io import BytesIO
 
 # Fonction pour obtenir la liste des clients
 def get_client_list():
@@ -72,26 +73,33 @@ def columns_names():
 
 
 # Fonction pour récupérer le modele du backend
-def load_model_from_backend():
-    url = "https://credit-score-atnhl6v7pq-od.a.run.app/load_model"  # Remplacez par l'URL de votre serveur Flask
-    try:
-        response = requests.get(url)
-        response_data = response.json()
+# def load_model_from_backend():
+#     url = "https://credit-score-atnhl6v7pq-od.a.run.app/load_model"  # Remplacez par l'URL de votre serveur Flask
+#     try:
+#         response = requests.get(url)
+#         response_data = response.json()
         
-        if "model_path" in response_data:
-            # Charger le modèle depuis le fichier temporaire
-            return joblib.load(response_data["model_path"])
-        elif "error" in response_data:
-            st.error(f"Erreur lors du chargement du modèle: {response_data['error']}")
-        else:
-            st.error("Réponse inattendue du serveur.")
-    except Exception as e:
-        st.error(f"Erreur de récupération du modèle: {str(e)}")
-    return None
+#         if "model_path" in response_data:
+#             # Charger le modèle depuis le fichier temporaire
+#             return joblib.load(response_data["model_path"])
+#         elif "error" in response_data:
+#             st.error(f"Erreur lors du chargement du modèle: {response_data['error']}")
+#         else:
+#             st.error("Réponse inattendue du serveur.")
+#     except Exception as e:
+#         st.error(f"Erreur de récupération du modèle: {str(e)}")
+#     return None
 
-# Charger le modèle depuis le backend
-model = load_model_from_backend()
+# # Charger le modèle depuis le backend
+# model = load_model_from_backend()
 
+def load_model(url):
+    response = requests.get(url)
+    model_file = BytesIO(response.content)
+    model = joblib.load(model_file)
+    return model
+url_model = "https://storage.googleapis.com/model_credit_score/temp_model.joblib"
+model = load_model(url_model)
 
 # Fonction pour la construction du jauge de score
 def create_gauge(bid_price, ask_price, current_price, spread):
@@ -240,7 +248,6 @@ def main():
     # Bouton pour expliquer la prédiction
     if st.sidebar.button("Expliquer la prédiction", key="explain_button"):
         # Charger le modèle depuis le backend
-        model = load_model_from_backend()
 
         # Supprimer la colonne 'ID' de df
         df_without_id = df.drop('ID', axis=1)
@@ -304,7 +311,7 @@ def main():
         user_df = pd.DataFrame([user_features], columns=df_without_id.columns)
 
         # Charger le modèle depuis le backend
-        model = load_model_from_backend()
+        #model = load_model_from_backend()
 
         # Calculer les valeurs SHAP pour l'observation mise à jour
         explainer = shap.Explainer(model, df_without_id)
