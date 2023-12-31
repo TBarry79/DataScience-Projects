@@ -1,4 +1,15 @@
-# Implémentez un Modèle de Scoring et un Dashboard Interactif pour Prêt à Dépenser
+# Projet 7 : Implémentez un Modèle de Scoring et un Dashboard Interactif pour Prêt à Dépenser
+
+## Compétences Évaluées
+- Déployer un modèle via une API dans le Web
+- Réaliser un dashboard pour présenter son travail de modélisation
+- Rédiger une note méthodologique afin de communiquer sa démarche de modélisation
+- Utiliser un logiciel de version de code pour assurer l’intégration du modèle
+- Présenter son travail de modélisation à l'oral
+- Définir et mettre en œuvre une stratégie de suivi de la performance d’un modèle
+- Définir et mettre en œuvre un pipeline d’entraînement des modèles
+- Définir la stratégie d’élaboration d’un modèle d’apprentissage supervisé
+- Évaluer les performances des modèles d’apprentissage supervisé
 
 **Description :**
 Ce projet vise à développer un système intégré permettant à la société financière "Prêt à Dépenser" d'automatiser le processus d'octroi de crédit tout en assurant transparence et interactivité. Il comprend la construction d'un modèle de scoring avancé ainsi que la création d'un dashboard interactif, déployés sur une plateforme cloud pour une accessibilité mondiale.
@@ -25,3 +36,8 @@ Ce projet vise à développer un système intégré permettant à la société f
 - Transparence vis-à-vis des clients.
 - Expérience utilisateur améliorée.
 - Accès facilité via une plateforme cloud sécurisée.
+
+## Contact
+Pour toute question ou clarification, n'hésitez pas à me contacter.
+
+[Revenir au guide principal ici](Formation_DataScientist/README.md).
