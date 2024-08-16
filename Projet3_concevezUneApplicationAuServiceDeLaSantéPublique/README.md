@@ -1,6 +1,6 @@
-# Projet 3 : Concevez une application au service de la santé publique
+# Concevez une application au service de la santé publique
 
-## Compétences Évaluées
+## ## Compétences Mises en Œuvre
 - Effectuer une représentation graphique à l'aide d'une librairie Python adaptée
 - Maîtriser les opérations fondamentales du langage Python pour la Data Science
 - Manipuler des données avec des librairies Python spécialisées
@@ -25,7 +25,7 @@ L'analyse vise à répondre à trois questions clés :
 ## Contact
 Pour toute question ou clarification, n'hésitez pas à me contacter.
 
-[Revenir au guide principal ici](Formation_DataScientist/README.md).
+[Revenir au guide principal ici](DataScience-Projects/README.md).
 
 --- 
 

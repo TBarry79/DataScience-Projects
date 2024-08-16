@@ -1,6 +1,6 @@
-# Projet 4 : Anticipez les besoins en consommation de bâtiments
+# Anticipez les besoins en consommation de bâtiments
 
-## Compétences Évaluées
+## Compétences Mises en Œuvre
 - Adapter les hyperparamètres d'un algorithme d'apprentissage supervisé afin de l'améliorer
 - Évaluer les performances d’un modèle d'apprentissage supervisé
 - Mettre en place le modèle d'apprentissage supervisé adapté au problème métier
@@ -28,7 +28,7 @@ L'objectif principal est de réaliser une courte analyse exploratoire et de test
 ## Contact
 Pour toute question ou clarification, n'hésitez pas à me contacter.
 
-[Revenir au guide principal ici](Formation_DataScientist/README.md).
+[Revenir au guide principal ici](DataScience-Projects/README.md).
 
 --- 
 

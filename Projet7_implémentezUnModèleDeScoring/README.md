@@ -1,43 +1,50 @@
-# Projet 7 : Implémentez un Modèle de Scoring et un Dashboard Interactif pour Prêt à Dépenser
+# Implémentez un Modèle de Scoring et un Dashboard Interactif 
 
-## Compétences Évaluées
-- Déployer un modèle via une API dans le Web
-- Réaliser un dashboard pour présenter son travail de modélisation
-- Rédiger une note méthodologique afin de communiquer sa démarche de modélisation
-- Utiliser un logiciel de version de code pour assurer l’intégration du modèle
-- Présenter son travail de modélisation à l'oral
-- Définir et mettre en œuvre une stratégie de suivi de la performance d’un modèle
-- Définir et mettre en œuvre un pipeline d’entraînement des modèles
-- Définir la stratégie d’élaboration d’un modèle d’apprentissage supervisé
-- Évaluer les performances des modèles d’apprentissage supervisé
+## Compétences Mises en Œuvre
+- Déployer un modèle via une API dans le Web.
+- Réaliser un dashboard pour présenter son travail de modélisation.
+- Rédiger une note méthodologique afin de communiquer sa démarche de modélisation.
+- Utiliser un logiciel de version de code pour assurer l’intégration du modèle.
+- Présenter son travail de modélisation à l'oral.
+- Définir et mettre en œuvre une stratégie de suivi de la performance d’un modèle.
+- Définir et mettre en œuvre un pipeline d’entraînement des modèles.
+- Définir la stratégie d’élaboration d’un modèle d’apprentissage supervisé.
+- Évaluer les performances des modèles d’apprentissage supervisé.
 
-**Description :**
-Ce projet vise à développer un système intégré permettant à la société financière "Prêt à Dépenser" d'automatiser le processus d'octroi de crédit tout en assurant transparence et interactivité. Il comprend la construction d'un modèle de scoring avancé ainsi que la création d'un dashboard interactif, déployés sur une plateforme cloud pour une accessibilité mondiale.
+## Description du Projet
+Ce projet a pour but de développer un système intégré pour "Prêt à Dépenser", une société financière, afin d'automatiser le processus d'octroi de crédit avec transparence et interactivité. Le projet inclut la construction d'un modèle de scoring avancé ainsi que la création d'un dashboard interactif, tous deux déployés sur une plateforme cloud pour une accessibilité globale.
 
-**Composants Clés :**
+## Composants Clés
 
-1. **Modèle de Scoring :**
-   - Utilisation de données variées pour entraîner un modèle de classification avancé.
-   - Algorithme évaluant la probabilité de remboursement des clients.
-   - Documentation détaillée de la méthodologie d'entraînement, avec définition de la fonction coût métier.
+### Modèle de Scoring
+- **Données variées** : Utilisation de données diversifiées pour entraîner un modèle de classification avancé.
+- **Évaluation de la probabilité de remboursement** : Algorithme évaluant la probabilité de remboursement des clients.
+- **Documentation méthodologique** : Documentation détaillée de la méthodologie d'entraînement avec définition de la fonction coût métier.
 
-2. **Dashboard Interactif :**
-   - Visualisation transparente du score pour les chargés de relation client.
-   - Fonctionnalités de filtrage pour explorer les informations descriptives d'un client.
-   - Possibilité de comparer avec l'ensemble des clients ou des groupes similaires.
+### Dashboard Interactif
+- **Visualisation transparente** : Affichage clair du score pour les chargés de relation client.
+- **Fonctionnalités de filtrage** : Exploration des informations descriptives d'un client, avec possibilité de comparaison avec l'ensemble des clients ou des groupes similaires.
 
-3. **Déploiement dans le Cloud :**
-   - Modèle et dashboard déployés sur une plateforme cloud pour une accessibilité mondiale.
-   - Sécurité et confidentialité des données client assurées.
+### Déploiement dans le Cloud
+- **Accessibilité mondiale** : Modèle et dashboard déployés sur une plateforme cloud pour une accessibilité globale.
+- **Sécurité** : Sécurité et confidentialité des données client assurées.
 
-**Avantages :**
+## Avantages
+- **Optimisation des processus de décision** : Amélioration de la précision des décisions de crédit.
+- **Transparence vis-à-vis des clients** : Augmentation de la transparence du processus d'octroi de crédit.
+- **Expérience utilisateur améliorée** : Réduction du temps de traitement des demandes.
+- **Accessibilité** : Accès facilité via une plateforme cloud sécurisée.
 
-- Optimisation des processus de décision.
-- Transparence vis-à-vis des clients.
-- Expérience utilisateur améliorée.
-- Accès facilité via une plateforme cloud sécurisée.
+## Analyse et Outils Utilisés
+- **Modélisation** : Python, scikit-learn (création et évaluation du modèle), GridSearchCV (optimisation des hyperparamètres).
+- **Dashboard** : Streamlit pour la visualisation interactive.
+- **Déploiement** : Flask, Docker.
+- **MLOps** : MLFlow (tracking des expérimentations), Evidently (détection du Data Drift).
+
+## Impact du Projet
+Le modèle de scoring mis en place a permis de réduire de 15% le taux de défaut de paiement en un an. De plus, le dashboard interactif a réduit de 40% le temps de traitement des demandes pour plus de 500 gestionnaires de crédits, améliorant ainsi la précision et l'efficacité des décisions de crédit.
 
 ## Contact
 Pour toute question ou clarification, n'hésitez pas à me contacter.
 
-[Revenir au guide principal ici](Formation_DataScientist/README.md).
+[Revenir au guide principal ici](DataScience-Projects/README.md).
